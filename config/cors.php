@@ -10,7 +10,7 @@ return [
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'], // veya ['Content-Type', 'Authorization'] gibi spesifik başlıklar
+    'allowed_headers' => ['*'], // veya ['Content-Type', 'Authorization'] gibi sp`esifik başlıklar
 
     'exposed_headers' => [],
 

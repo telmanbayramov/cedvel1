@@ -21,10 +21,10 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 
 Route::middleware('jwt.auth')->group(function(){
     Route::get('roles',[RoleController::class,'index']);
-Route::post('roles',[RoleController::class,'store']);
-Route::get('roles/{id}',[RoleController::class,'show']);
-Route::put('roles/{id}',[RoleController::class,'update']);
-Route::delete('roles/{id}',[RoleController::class,'destroy']);
+    Route::post('roles',[RoleController::class,'store']);
+    Route::get('roles/{id}',[RoleController::class,'show']);
+    Route::put('roles/{id}',[RoleController::class,'update']);
+    Route::delete('roles/{id}',[RoleController::class,'destroy']);
 });
 
 Route::middleware('jwt.auth')->group(function(){
@@ -36,11 +36,11 @@ Route::middleware('jwt.auth')->group(function(){
 });
 
 Route::middleware('jwt.auth')->group(function(){
-Route::get('users', [UserController::class, 'index']);
-Route::get('users/{id}',[UserController::class,'show']);
-Route::post('users', [UserController::class, 'store']);
-Route::put('users/{id}', [UserController::class, 'update']);
-Route::delete('users/{id}', [UserController::class, 'destroy']);
-Route::post('users/{id}/assign-role', [UserController::class, 'assignRole']);
-Route::post('users/{id}/give-permission', [UserController::class, 'givePermission']);
+    Route::get('users', [UserController::class, 'index']);
+    Route::get('users/{id}',[UserController::class,'show']);
+    Route::post('users', [UserController::class, 'store']);
+    Route::put('users/{id}', [UserController::class, 'update']);
+    Route::delete('users/{id}', [UserController::class, 'destroy']);
+    Route::post('users/{id}/assign-role', [UserController::class, 'assignRole']);
+    Route::post('users/{id}/give-permission', [UserController::class, 'givePermission']);
 });
