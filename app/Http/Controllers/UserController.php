@@ -67,7 +67,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
     
         if ($user->status == 0) {
-            return response()->json(['error' => 'Bu istifadəçi devre dışıdır ve güncellenemez'], 400);
+            return response()->json(['error' => 'Bu istifadəçi qeyri-aktivdir ve güncellene bilmez'], 400);
         }
     
         $validatedData = $request->validate([

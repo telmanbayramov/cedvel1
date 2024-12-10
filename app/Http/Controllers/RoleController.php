@@ -24,7 +24,6 @@ class RoleController extends Controller
             'permissions' => 'required|array',
             'permissions.*' => 'string',
         ]);
-
         $role = Role::firstOrCreate(['name' => $validated['role_name']]);
         foreach ($validated['permissions'] as $permissionName) {
             $permission = Permission::where('name', $permissionName)->first();
@@ -47,7 +46,7 @@ class RoleController extends Controller
     {
         $role = Role::where('id', $id)
                     ->where('status', 1)
-                    ->with('permissiossns') 
+                    ->with('permissions') 
                     ->first();
     
         if (!$role) {
@@ -56,23 +55,39 @@ class RoleController extends Controller
     
         return response()->json($role, 200);
     }
-    
 
     public function update(Request $request, $id)
     {
-        $role = Role::findOrFail($id);
+    $role = Role::findOrFail($id);
+    if ($role->status == 0) {
+        return response()->json(['error' => 'Bu rol qeyri-aktivdir və yenilənə bilməz.'], 400);
+    }
 
-        if ($role->status == 0) {
-            return response()->json(['error' => 'Bu rol qeyri-aktivdir və yenilənə bilməz.'], 400);
+    $validated = $request->validate([
+        'role_name' => 'required|string',
+        'permissions' => 'required|array',
+        'permissions.*' => 'string',
+    ]);
+
+    $role->update(['name' => $validated['role_name']]);
+
+    $role->permissions()->detach();
+
+    foreach ($validated['permissions'] as $permissionName) {
+        $permission = Permission::where('name', $permissionName)->first();
+
+        if ($permission) {
+            $role->givePermissionTo($permission);
+        } else {
+            return response()->json([
+                'message' => "İcaze '{$permissionName}' tapılmadı."
+            ], 404);
         }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $role->update(['name' => $validated['name']]);
-
-        return response()->json($role, 200);
+    }
+    return response()->json([
+        'message' => 'Rol başarıyla güncellendi ve izinler atandı.',
+        'role' => $role->load('permissions'),  
+    ], 200);
     }
 
     public function destroy($id)
