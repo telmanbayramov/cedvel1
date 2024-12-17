@@ -55,24 +55,19 @@ class RoleController extends Controller
     
         return response()->json($role, 200);
     }
-
     public function update(Request $request, $id)
     {
     $role = Role::findOrFail($id);
     if ($role->status == 0) {
         return response()->json(['error' => 'Bu rol qeyri-aktivdir və yenilənə bilməz.'], 400);
     }
-
     $validated = $request->validate([
         'role_name' => 'required|string',
         'permissions' => 'required|array',
         'permissions.*' => 'string',
     ]);
-
     $role->update(['name' => $validated['role_name']]);
-
     $role->permissions()->detach();
-
     foreach ($validated['permissions'] as $permissionName) {
         $permission = Permission::where('name', $permissionName)->first();
 

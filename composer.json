@@ -22,13 +22,18 @@
         "phpunit/phpunit": "^10.1",
         "spatie/laravel-ignition": "^2.0"
     },
-    "autoload": {
+
+   "autoload": {
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/GroupHelper.php"
+        ]
     },
+    
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
@@ -65,4 +70,5 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true
+    
 }
