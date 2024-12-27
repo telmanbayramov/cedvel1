@@ -111,41 +111,41 @@ class ScheduleController extends Controller
         return response()->json(['schedule' => $formattedSchedule]);
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'faculty_id' => 'required|integer|exists:faculties,id',
-            'department_id' => 'required|integer|exists:departments,id',
-            'group_id' => 'required|integer|exists:groups,id',
-            'corp_id' => 'required|integer|exists:corps,id',
-            'room_id' => 'required|integer|exists:rooms,id',
-            'lesson_type_id' => 'required|integer|exists:lesson_types,id',
-            'hour_id' => 'required|integer|exists:hours,id',
-            'semester_id' => 'required|integer|exists:semesters,id',
-            'week_type_id' => 'nullable|integer|exists:week_types,id', // nullable ekledik
-            'day_id' => 'required|integer|exists:days,id',
-            'user_id' => 'required|integer|exists:users,id',
-            'discipline_id' => 'required|integer|exists:disciplines,id',
-        ]);
-    
-        $schedule = Schedule::create([
-            'faculty_id' => $validated['faculty_id'],
-            'department_id' => $validated['department_id'],
-            'group_id' => $validated['group_id'],
-            'corp_id' => $validated['corp_id'],
-            'room_id' => $validated['room_id'],
-            'lesson_type_id' => $validated['lesson_type_id'],
-            'hour_id' => $validated['hour_id'],
-            'semester_id' => $validated['semester_id'],
-            'week_type_id' => $validated['week_type_id'], // Burada null olabilir
-            'day_id' => $validated['day_id'],
-            'user_id' => $validated['user_id'],
-            'discipline_id' => $validated['discipline_id'],
-        ]);
-    
-        return response()->json(['message' => 'Schedule created successfully', 'data' => $schedule]);
-    }
-    
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'faculty_id' => 'required|integer|exists:faculties,id',
+        'department_id' => 'required|integer|exists:departments,id',
+        'group_id' => 'required|integer|exists:groups,id',
+        'corp_id' => 'required|integer|exists:corps,id',
+        'room_id' => 'required|integer|exists:rooms,id',
+        'lesson_type_id' => 'required|integer|exists:lesson_types,id',
+        'hour_id' => 'required|integer|exists:hours,id',
+        'semester_id' => 'required|integer|exists:semesters,id',
+        'week_type_id' => 'nullable|integer|exists:week_types,id', // nullable ekledik
+        'day_id' => 'required|integer|exists:days,id',
+        'user_id' => 'required|integer|exists:users,id',
+        'discipline_id' => 'required|integer|exists:disciplines,id',
+    ]);
+
+    $schedule = Schedule::create([
+        'faculty_id' => $validated['faculty_id'],
+        'department_id' => $validated['department_id'],
+        'group_id' => $validated['group_id'],
+        'corp_id' => $validated['corp_id'],
+        'room_id' => $validated['room_id'],
+        'lesson_type_id' => $validated['lesson_type_id'],
+        'hour_id' => $validated['hour_id'],
+        'semester_id' => $validated['semester_id'],
+        'week_type_id' => $validated['week_type_id'], // Burada null olabilir
+        'day_id' => $validated['day_id'],
+        'user_id' => $validated['user_id'],
+        'discipline_id' => $validated['discipline_id'],
+    ]);
+
+    return response()->json(['message' => 'Schedule created successfully', 'data' => $schedule]);
+}
+
 
     public function update(Request $request, $id)
     {
