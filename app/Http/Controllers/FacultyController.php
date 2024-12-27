@@ -10,15 +10,20 @@ class FacultyController extends Controller
     public function index()
     {
         $faculties = Faculty::where('status', '1')
-            ->with('specialities') 
+            ->with(['specialities' => function ($query) {
+                $query->where('status', '1'); 
+            }])
             ->get();
     
         return response()->json($faculties);
     }
+    
     public function show($id)
     {
-        $faculty = Faculty::with('specialities')
-                    ->findOrFail($id); 
+        $faculty = Faculty::with(['specialities' => function ($query) {
+                $query->where('status', '1'); // Specialities için filtre
+            }])
+            ->findOrFail($id); 
     
         if ($faculty->status == '0') {
             return response()->json(['message' => "Bu fakültə qeyri-aktivdir və daxil olmaq mümkün deyil"], 403);
@@ -55,7 +60,6 @@ class FacultyController extends Controller
         if ($existingFaculty) {
             return response()->json(['message' => 'Eyni adlı başqa bir fakültə də var'], 409);
         }
-
         $faculty->update($validated);
 
         return response()->json(['message' => 'Fakültə uğurla yeniləndi', 'data' => $faculty]);

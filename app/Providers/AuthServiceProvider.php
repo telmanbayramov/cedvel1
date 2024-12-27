@@ -15,15 +15,12 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         User::class => UserPolicy::class,
+            \App\Models\User::class => \App\Policies\UserPolicy::class,
+        
     ];
 
     /**
      * Register any authentication / authorization services.
      */
-    public function boot(): void
-    {
-        $this->registerPolicies();
-        Gate::define('delete-user', [UserPolicy::class, 'delete']);
-
-    }
+ 
 }

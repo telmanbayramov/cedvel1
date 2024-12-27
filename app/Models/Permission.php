@@ -8,7 +8,7 @@ class Permission extends SpatiePermission
 {
    
 
-    protected $fillable = ['name', 'guard_name'];
+    protected $fillable = ['name', 'guard_name','status'];
 
     // Permission -> Roles ilişkisi (Bir izin birden fazla role ait olabilir)
     // public function roles()

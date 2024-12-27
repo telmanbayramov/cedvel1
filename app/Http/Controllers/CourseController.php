@@ -4,45 +4,54 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Course;
+use App\Models\Specialty;
 
 class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Course::with(['specialty' => function($query) {
-            $query->select('id', 'name'); 
-        }])->where('status', 1)->get();
-    
-        return response()->json($courses, 200);
+        $courses = Course::with('specialty')
+            ->where('status', 1)
+            ->get();
+
+        $groupedCourses = $courses->groupBy('name')->map(function ($group) {
+            $course = $group->first();
+
+            $specialties = $group->map(function ($course) {
+                return $course->specialty->name;
+            })->unique();
+
+            return [
+                'id' => $course->id,
+                'name' => $course->name,
+                'specialities' => $specialties
+            ];
+        });
+
+        return response()->json(['courses' => $groupedCourses]);
     }
-    
-    
-    
-    public function show($id)
-    {
-        $cours = Course::where('status', '1')->findOrFail($id);
-        return response()->json($cours, 201);
-    }
+
     public function store(Request $request)
     {
+        // Veriyi validate et
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'specialty_id' => 'required|exists:specialities,id',
+            'specialty_id' => 'required|array|exists:specialities,id|distinct', // 'distinct' ile duplicate'leri engelliyoruz
+            'specialty_id.*' => 'exists:specialities,id',
         ]);
-
-        $validated['status'] = $validated['status'] ?? 1;
-
-        $existingCourse = Course::where('name', $validated['name'])->where('status', 0)->first();
-
-        if ($existingCourse) {
-            $existingCourse->update(['status' => 1]);
-            return response()->json(['message' => 'Silinmiş kurs tekrar aktif oldu!', 'course' => $existingCourse], 200);
+    
+        // Her specialty_id için kursları ekle
+        $courses = [];
+        foreach ($validated['specialty_id'] as $specialtyId) {
+            $courses[] = Course::create([
+                'name' => $validated['name'],
+                'specialty_id' => $specialtyId,
+            ]);
         }
-
-        $course = Course::create($validated);
-
-        return response()->json(['message' => 'Kurs elave edildi!', 'course' => $course], 201);
+    
+        return response()->json(['message' => 'Kurslar başarıyla eklendi!', 'courses' => $courses], 201);
     }
+    
     public function update(Request $request, $id)
     {
         $course = Course::findOrFail($id);
@@ -51,7 +60,7 @@ class CourseController extends Controller
         }
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'speciality_id' => 'sometimes|exists:specialities,id',
+            'specialty_id' => 'sometimes|exists:specialities,id',
         ]);
         if (isset($validated['name'])) {
             $existingCourse = Course::where('name', $validated['name'])->where('status', 0)->first();

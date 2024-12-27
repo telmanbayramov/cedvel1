@@ -63,7 +63,7 @@ class DepartmentController extends Controller
         return response()->json([
             'id' => $department->id,
             'name' => $department->name,
-            'faculty_name' => $department->faculty->name ?? null, // Fakülte adı
+            'faculty_name' => $department->faculty->name ?? null, 
             'status' => $department->status,
             'created_at' => $department->created_at,
             'updated_at' => $department->updated_at,

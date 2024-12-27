@@ -14,4 +14,8 @@ class Specialty extends Model
     {
         return $this->belongsTo(Faculty::class, 'faculty_id', 'id');
     }
+    public function course()
+    {
+        return $this->hasMany(Course::class); // Specialty'nin bir Course'a ait olduğunu belirtiyoruz
+    }
 }

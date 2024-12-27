@@ -16,6 +16,7 @@ class ModelHasRole extends Model
         'role_id',
         'model_type',
         'model_id',
+        'status',
     ];
     public function role()
     {

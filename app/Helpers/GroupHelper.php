@@ -5,36 +5,66 @@ namespace App\Helpers;
 class GroupHelper
 {
     /**
-     * Group Type'ı kontrol ederek, adını döndürür.
+     * Grup türünü sayısal değere dönüştürür.
+     *
+     * @param int $groupType
+     * @return int
+     */
+    public static function mapGroupType($groupType)
+    {
+        $groupTypes = [
+            1 => 'eyani',   // 1: Əyani
+            2 => 'qiyabi',  // 2: Qiyabi
+        ];
+
+        return $groupTypes[$groupType] ?? 0;  // Eğer geçerli bir tür yoksa 0 döndür
+    }
+
+    /**
+     * Grup seviyesini sayısal değere dönüştürür.
+     *
+     * @param int $groupLevel
+     * @return int
+     */
+    public static function mapGroupLevel($groupLevel)
+    {
+        $groupLevels = [
+            1 => 'magistr',  // 1: Magistr
+            2 => 'bakalavr', // 2: Bakalavr
+        ];
+
+        return $groupLevels[$groupLevel] ?? 0;  // Eğer geçerli bir seviye yoksa 0 döndür
+    }
+
+    /**
+     * Sayısal grup türüne göre adı döndürür.
      *
      * @param int $groupType
      * @return string
      */
     public static function getGroupTypeName($groupType)
     {
-        if ($groupType == 1) {
-            return 'Əyani'; // Group type 1 için
-        } elseif ($groupType == 2) {
-            return 'Qiyabi'; // Group type 2 için
-        }
+        $groupNames = [
+            1 => 'Əyani',   // 1: Əyani
+            2 => 'Qiyabi',  // 2: Qiyabi
+        ];
 
-        return 'Unknown'; // Diğer durumlar için
+        return $groupNames[$groupType] ?? 'Unknown';
     }
 
     /**
-     * Group Level'i kontrol ederek, adını döndürür.
+     * Sayısal grup seviyesine göre adı döndürür.
      *
      * @param int $groupLevel
      * @return string
      */
     public static function getGroupLevelName($groupLevel)
     {
-        if ($groupLevel == 1) {
-            return 'Magistr'; // Group level 1 için
-        } elseif ($groupLevel == 2) {
-            return 'Bakalavr'; // Group level 2 için
-        }
+        $groupLevels = [
+            1 => 'Magistr',   // 1: Magistr
+            2 => 'Bakalavr',  // 2: Bakalavr
+        ];
 
-        return 'Unknown'; // Diğer durumlar için
+        return $groupLevels[$groupLevel] ?? 'Unknown';
     }
 }

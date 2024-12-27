@@ -9,7 +9,7 @@ class PasswordReset extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'reset_code', 'reset_code_expires_at'];
+    protected $fillable = ['user_id', 'reset_code', 'reset_code_expires_at','status'];
 
     public function user()
     {

@@ -9,13 +9,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
-{           // buna bax role repmission olmasin
+{           
     public function index()
     {
-        $users = User::where('status', 1)->get();
+        $users = User::where('status', 1)->with('roles')->get();
     
-        $usersWithDetails = $users->map(function($user) {
-        
+        $usersWithDetails = $users->map(function ($user) {
             return [
                 "id" => $user->id,
                 "name" => $user->name,
@@ -26,6 +25,7 @@ class UserController extends Controller
                 "faculty_id" => $user->faculty_id,
                 "department_id" => $user->department_id,
                 "email" => $user->email,
+                "roles" => $user->roles->pluck('name'), 
             ];
         });
     
@@ -78,7 +78,6 @@ class UserController extends Controller
             'password' => 'required|string|min:6',
             'role' => 'required|string|exists:roles,name',
         ]);
-
         $user = User::create([
             'name' => $validatedData['name'],
             'surname' => $validatedData['surname'],
@@ -151,6 +150,7 @@ class UserController extends Controller
         $user->roles()->update(['status' => 0]);
         return response()->json(['message' => 'İstifadəçi məlumatları silindi!'], 200);
     }
-    
+
+
 
 }

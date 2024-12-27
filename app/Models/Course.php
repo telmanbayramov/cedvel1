@@ -11,8 +11,8 @@ class Course extends Model
     protected $fillable = [
         'name', 'specialty_id', 'status',
     ];
-    public function specialty()
+      public function specialty()
     {
-        return $this->belongsTo(Specialty::class, 'specialty_id');
+        return $this->belongsTo(Specialty::class);
     }
 }
