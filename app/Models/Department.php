@@ -13,4 +13,12 @@ class Department extends Model
     {
         return $this->belongsTo(Faculty::class, 'faculty_id');
     }
+    public function disciplines()
+    {
+        return $this->hasMany(Discipline::class);
+    }
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }

@@ -11,19 +11,18 @@ class DisciplinController extends Controller
     public function index()
     {
         $disciplin = Discipline::where('status', '1')
-            ->with('department')  // Sadece department'in 'name' alanı yüklenecek
+            ->with('department')
             ->get();
-    
-        // department_name'i elle eklemek gerekebilir, ancak zaten sadece name yüklenecek
+
         return response()->json($disciplin);
     }
-    
+
     public function show($id)
     {
         $disciplin = Discipline::where('status', '1')
-            ->with('department')  // Sadece department'in 'name' alanı yüklenecek
+            ->with('department')
             ->findOrFail($id);
-    
+
         return response()->json($disciplin);
     }
 
@@ -31,7 +30,7 @@ class DisciplinController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'department_name' => 'required|string', 
+            'department_name' => 'required|string',
         ]);
 
         $department = Department::where('name', $validated['department_name'])->first();
@@ -68,14 +67,14 @@ class DisciplinController extends Controller
 
         $disciplin->update([
             'name' => $validated['name'],
-            'department_id' => $department->id, 
+            'department_id' => $department->id,
         ]);
 
         return response()->json([
             'message' => 'Disciplin başarıyla güncellendi.',
             'disciplin' => [
                 'name' => $disciplin->name,
-                'department_name' => $department->name, 
+                'department_name' => $department->name,
                 'status' => $disciplin->status,
             ],
         ]);
@@ -84,7 +83,7 @@ class DisciplinController extends Controller
     {
         $disciplin = Discipline::findOrFail($id);
 
-        $disciplin->update(['status'=>'0']);
+        $disciplin->update(['status' => '0']);
 
         return response()->json([
             'message' => 'Disciplin başarıyla silindi.',

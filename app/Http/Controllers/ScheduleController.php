@@ -21,8 +21,20 @@ class ScheduleController extends Controller
 {
     public function index(Request $request)
     {
-        // Veritabanından schedule bilgilerini alıyoruz
-        $schedules = Schedule::where('status', '1')->with([
+        $facultyId = $request->query('faculty_id');
+        $departmentId = $request->query('department_id');
+        $groupId = $request->query('group_id');
+        $corpId = $request->query('corp_id');
+        $roomId = $request->query('room_id');
+        $lessonTypeId = $request->query('lesson_type_id');
+        $hourId = $request->query('hour_id');
+        $semesterId = $request->query('semester_id');
+        $weekTypeId = $request->query('week_type_id');
+        $dayId = $request->query('day_id');
+        $userId = $request->query('user_id');
+        $disciplineId = $request->query('discipline_id');
+
+        $schedulesQuery = Schedule::where('status', '1')->with([
             'faculty',
             'department',
             'group',
@@ -33,33 +45,81 @@ class ScheduleController extends Controller
             'semester',
             'weekType',
             'day',
-            'user', // Öğretmen bilgisi
+            'user',
             'discipline',
-        ])->get();
+        ]);
 
-        // Gruplara göre verileri düzenle
+        if ($facultyId) {
+            $schedulesQuery->where('faculty_id', $facultyId);
+        }
+
+        if ($departmentId) {
+            $schedulesQuery->where('department_id', $departmentId);
+        }
+
+        if ($groupId) {
+            $schedulesQuery->where('group_id', $groupId);
+        }
+
+        if ($corpId) {
+            $schedulesQuery->where('corp_id', $corpId);
+        }
+
+        if ($roomId) {
+            $schedulesQuery->where('room_id', $roomId);
+        }
+
+        if ($lessonTypeId) {
+            $schedulesQuery->where('lesson_type_id', $lessonTypeId);
+        }
+
+        if ($hourId) {
+            $schedulesQuery->where('hour_id', $hourId);
+        }
+
+        if ($semesterId) {
+            $schedulesQuery->where('semester_id', $semesterId);
+        }
+
+        if ($weekTypeId) {
+            $schedulesQuery->where('week_type_id', $weekTypeId);
+        }
+
+        if ($dayId) {
+            $schedulesQuery->where('day_id', $dayId);
+        }
+
+        if ($userId) {
+            $schedulesQuery->where('user_id', $userId);
+        }
+
+        if ($disciplineId) {
+            $schedulesQuery->where('discipline_id', $disciplineId);
+        }
+
+        $schedules = $schedulesQuery->get();
+
         $groupedSchedules = $schedules->groupBy('group_id')->map(function ($groupSchedules) {
-            // Grup bilgilerini al
             $firstSchedule = $groupSchedules->first();
 
             return [
                 'id' => $firstSchedule->id,
                 'group_name' => $firstSchedule->group ? $firstSchedule->group->name : null,
-                'faculty_name' => $firstSchedule->faculty ? $firstSchedule->faculty->name : null, // Faculty
-                'department_name' => $firstSchedule->department ? $firstSchedule->department->name : null, // Department
+                'faculty_name' => $firstSchedule->faculty ? $firstSchedule->faculty->name : null,
+                'department_name' => $firstSchedule->department ? $firstSchedule->department->name : null,
                 'lessons' => $groupSchedules->map(function ($schedule) {
                     return [
-                        'schedule_id' => $schedule->id, // Her dersin ID'sini ekledik
+                        'schedule_id' => $schedule->id,
                         'day_name' => $schedule->day ? $schedule->day->name : null,
                         'hour_name' => $schedule->hour ? $schedule->hour->name : null,
                         'discipline_name' => $schedule->discipline ? $schedule->discipline->name : null,
-                        'user_name' => $schedule->user ? $schedule->user->name : null, // Öğretmen adı
-                        'corp_name' => $schedule->corp ? $schedule->corp->name : null, // Corp adı
-                        'lesson_type_name' => $schedule->lessonType ? $schedule->lessonType->name : null, // Lesson type adı
-                        'room_name' => $schedule->room ? $schedule->room->name : null, // Room adı
+                        'user_name' => $schedule->user ? $schedule->user->name : null,
+                        'corp_name' => $schedule->corp ? $schedule->corp->name : null,
+                        'lesson_type_name' => $schedule->lessonType ? $schedule->lessonType->name : null,
+                        'room_name' => $schedule->room ? $schedule->room->name : null,
                         'year' => $schedule->semester ? $schedule->semester->year : null,
                         'semester_num' => $schedule->semester ? $schedule->semester->semester_num : null,
-                        'week_type_name' => $schedule->weekType ? $schedule->weekType->name : null, // Week type adı
+                        'week_type_name' => $schedule->weekType ? $schedule->weekType->name : null,
                     ];
                 }),
             ];
@@ -68,10 +128,8 @@ class ScheduleController extends Controller
         return response()->json(['schedules' => $groupedSchedules]);
     }
 
-
     public function show($id)
     {
-        // Retrieve the schedule by ID with the related models
         $schedule = Schedule::where('status', '1')->with([
             'faculty',
             'department',
@@ -87,12 +145,10 @@ class ScheduleController extends Controller
             'discipline',
         ])->find($id);
 
-        // Check if schedule exists
         if (!$schedule) {
             return response()->json(['message' => 'Schedule not found'], 404);
         }
 
-        // Format the schedule with names instead of IDs
         $formattedSchedule = [
             'id' => $schedule->id,
             'faculty_name' => $schedule->faculty ? $schedule->faculty->name : null,
@@ -124,7 +180,7 @@ class ScheduleController extends Controller
             'lesson_type_id' => 'required|integer|exists:lesson_types,id',
             'hour_id' => 'required|integer|exists:hours,id',
             'semester_id' => 'required|integer|exists:semesters,id',
-            'week_type_id' => 'nullable|integer|exists:week_types,id', // nullable ekledik
+            'week_type_id' => 'nullable|integer|exists:week_types,id',
             'day_id' => 'required|integer|exists:days,id',
             'user_id' => 'required|integer|exists:users,id',
             'discipline_id' => 'required|integer|exists:disciplines,id',
@@ -139,7 +195,7 @@ class ScheduleController extends Controller
             'lesson_type_id' => $validated['lesson_type_id'],
             'hour_id' => $validated['hour_id'],
             'semester_id' => $validated['semester_id'],
-            'week_type_id' => $validated['week_type_id'], // Burada null olabilir
+            'week_type_id' => $validated['week_type_id'],
             'day_id' => $validated['day_id'],
             'user_id' => $validated['user_id'],
             'discipline_id' => $validated['discipline_id'],
@@ -185,8 +241,6 @@ class ScheduleController extends Controller
 
         return response()->json(['message' => 'Schedule updated successfully', 'data' => $schedule]);
     }
-
-
     public function destroy($id)
     {
         $schedule = Schedule::findOrFail($id);

@@ -25,6 +25,7 @@ use App\Http\Controllers\WeekTypeController;
 use App\Models\Day;
 use App\Models\Group;
 use App\Models\LessonType;
+use App\Models\Schedule;
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
@@ -161,6 +162,12 @@ Route::middleware('jwt.auth')->group(function () {
     Route::post('schedule', [ScheduleController::class, 'store']);
     Route::put('schedule/{id}', [ScheduleController::class, 'update']);
     Route::delete('schedule/{id}', [ScheduleController::class, 'destroy']);
+    Route::get('departmentsbyfaculty/{faculty_id}', [ScheduleController::class, 'getDepartmentsByFaculty']);
+    Route::get('groupsbyfaculty/{faculty_id}', [ScheduleController::class, 'getGroupsByFaculty']);
+    Route::get('disciplinesbydepartment/{department_id}', [ScheduleController::class, 'getDisciplinesByDepartment']);
+    Route::get('userbydepartment/{department_id}', [ScheduleController::class, 'getUsersByDepartment']);
+    Route::get('/faculty-schedules', [ScheduleController::class, 'facultySchedules']);
+
 });
 
 

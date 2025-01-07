@@ -11,7 +11,7 @@ class Group extends Model
     protected $fillable=['name','student_amount','group_type','faculty_id','course_id','speciality_id','group_level','status'];
     public function faculty()
     {
-        return $this->belongsTo(Faculty::class, 'faculty_id');
+        return $this->belongsTo(Faculty::class);
     }
 
     public function speciality()
@@ -22,4 +22,5 @@ class Group extends Model
     {
         return $this->belongsTo(Course::class);  // Group modeli Course modeline bağlıdır
     }
+    
 }

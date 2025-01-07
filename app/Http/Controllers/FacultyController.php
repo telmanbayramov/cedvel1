@@ -21,7 +21,7 @@ class FacultyController extends Controller
     public function show($id)
     {
         $faculty = Faculty::with(['specialities' => function ($query) {
-                $query->where('status', '1'); // Specialities için filtre
+                $query->where('status', '1'); 
             }])
             ->findOrFail($id); 
     

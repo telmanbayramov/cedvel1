@@ -10,12 +10,10 @@ class DepartmentController extends Controller
 {
     public function index()
 {
-    // İlişkili fakülte verileriyle departmanları getir
     $departments = Department::with('faculty')
         ->where('status', 1)
         ->get();
 
-    // Fakülte adı ile birlikte veriyi düzenle
     $departmentsWithFacultyName = $departments->map(function ($department) {
         return [
             'id' => $department->id,
