@@ -26,13 +26,7 @@ class RoomTypeController extends Controller
         ]);
 
         $existingRoomType = RoomType::where('name', $validated['name'])->first();
-        if ($existingRoomType) {
-            if ($existingRoomType->status == 0) {
-                $existingRoomType->update(['status' => 1]);
-                return response()->json(['message' => 'Bu oda tipi yeniden aktif hale getirildi.', 'data' => $existingRoomType], 200);
-            }
-            return response()->json(['message' => 'Bu oda tipi zaten mevcut.', 'data' => $existingRoomType], 409);
-        }
+    
 
         $roomtype = RoomType::create(['name' => $validated['name'], 'status' => 1]);
         return response()->json(["message" => "Oda tipi eklendi", "data" => $roomtype], 201);
@@ -46,14 +40,7 @@ class RoomTypeController extends Controller
             'name' => 'required|string|max:255'
         ]);
 
-        $existingRoomType = RoomType::where('name', $validated['name'])
-            ->where('status', 1)
-            ->where('id', '!=', $id)
-            ->first();
 
-        if ($existingRoomType) {
-            return response()->json(["message" => 'Aynı isimde bir oda tipi zaten mevcut.'], 409);
-        }
 
         $roomtype->update(['name' => $validated['name']]);
         return response()->json(["message" => "Oda tipi güncellendi", "data" => $roomtype]);

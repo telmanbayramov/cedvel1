@@ -9,25 +9,12 @@ use Illuminate\Http\Request;
 class DepartmentController extends Controller
 {
     public function index()
-{
-    $departments = Department::with('faculty')
-        ->where('status', 1)
-        ->get();
-
-    $departmentsWithFacultyName = $departments->map(function ($department) {
-        return [
-            'id' => $department->id,
-            'name' => $department->name,
-            'faculty_id' => $department->faculty_id,
-            'faculty_name' => $department->faculty ? $department->faculty->name : null,
-            'status' => $department->status,
-            'created_at' => $department->created_at,
-            'updated_at' => $department->updated_at,
-        ];
-    });
-
-    return response()->json($departmentsWithFacultyName, 200);
-}
+    {
+        $departments = Department::with('faculty')
+            ->where('status', 1)
+            ->get();
+        return response()->json($departments, 200);
+    }
 
     public function create(Request $request)
     {
@@ -36,15 +23,7 @@ class DepartmentController extends Controller
             'faculty_id' => 'required|exists:faculties,id',
         ]);
 
-        $existingDepartment = Department::where('name', $validated['name'])
-            ->where('faculty_id', $validated['faculty_id'])
-            ->where('status', 0)
-            ->first();
 
-        if ($existingDepartment) {
-            $existingDepartment->update(['status' => 1]);
-            return response()->json(['message' => 'Mövcud fəaliyyətsiz kafedra yenidən aktivləşdirilib', 'data' => $existingDepartment], 200);
-        }
 
         $department = Department::create([
             'name' => $validated['name'],
@@ -56,26 +35,17 @@ class DepartmentController extends Controller
 
     public function show($id)
     {
-        $department = Department::with('faculty:id,name')->findOrFail($id);
-
-        return response()->json([
-            'id' => $department->id,
-            'name' => $department->name,
-            'faculty_name' => $department->faculty->name ?? null, 
-            'status' => $department->status,
-            'created_at' => $department->created_at,
-            'updated_at' => $department->updated_at,
-        ], 200);
+        $department = Department::with('faculty:id,name')->where('status', '1')->findOrFail($id);
+        return response()->json(
+            $department,
+            200
+        );
     }
 
 
     public function update(Request $request, $id)
     {
         $department = Department::findOrFail($id);
-
-        if ($department->status == 0) {
-            return response()->json(['message' => 'Qeyri-aktiv şöbəni yeniləmək mümkün deyil'], 403);
-        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -89,8 +59,16 @@ class DepartmentController extends Controller
 
     public function delete($id)
     {
-        $department = Department::findOrFail($id);
+        $department = Department::where('status', 1)->findOrFail($id);
+
+        if ($department->status == 0) {
+            return response()->json([
+                'message' => 'Bu kafedra zaten ləğv edilib',
+            ], 400);
+        }
         $department->update(['status' => 0]);
-        return response()->json(['message' => 'Kafedra ləğv edilib'], 200);
+        return response()->json([
+            'message' => 'Kafedra ləğv edilib',
+        ], 200);
     }
 }

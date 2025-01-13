@@ -23,11 +23,7 @@ class LessonTypeController extends Controller
         $validate=$request->validate([
             'name'=>'required|string|max:255'
         ]);
-        $existingLesson=LessonType::where('name',$validate['name'])->first();
-        if($existingLesson){
-            $existingLesson->update(['status'=='1']);
-            return response()->json(['message'=>'Bu fenn tipi movcud oldu','data'=>$existingLesson],201);
-        }
+     
         $lesson=LessonType::create(['name'=>$validate['name']]);
         return response()->json(['data'=>$lesson],201);
     }
@@ -37,11 +33,7 @@ class LessonTypeController extends Controller
         $validate=$request->validate([
             'name'=>'required|string|max:255'
         ]);
-        $existingLesson=LessonType::where('name',$validate['name'])->where('status','1')->where('id','!=',$id)->first();
-        if($existingLesson)
-        {
-            return response()->json(["message"=>'Eyni adli fenn tipi movcuddur'],409);
-        }
+    
         $lesson->update($validate);
         return response()->json(['message'=>'fennin tipinin adi deyisdirildi','data'=>$lesson]);
     }

@@ -168,41 +168,51 @@ class ScheduleController extends Controller
 
         return response()->json(['schedule' => $formattedSchedule]);
     }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
             'faculty_id' => 'required|integer|exists:faculties,id',
             'department_id' => 'required|integer|exists:departments,id',
-            'group_id' => 'required|integer|exists:groups,id',
+            'group_id' => 'required|array',
+            'group_id.*' => 'integer|exists:groups,id',
             'corp_id' => 'required|integer|exists:corps,id',
             'room_id' => 'required|integer|exists:rooms,id',
             'lesson_type_id' => 'required|integer|exists:lesson_types,id',
             'hour_id' => 'required|integer|exists:hours,id',
             'semester_id' => 'required|integer|exists:semesters,id',
-            'week_type_id' => 'nullable|integer|exists:week_types,id',
+            'week_type_id' => 'required|integer|exists:week_types,id',
             'day_id' => 'required|integer|exists:days,id',
             'user_id' => 'required|integer|exists:users,id',
             'discipline_id' => 'required|integer|exists:disciplines,id',
         ]);
 
-        $schedule = Schedule::create([
-            'faculty_id' => $validated['faculty_id'],
-            'department_id' => $validated['department_id'],
-            'group_id' => $validated['group_id'],
-            'corp_id' => $validated['corp_id'],
-            'room_id' => $validated['room_id'],
-            'lesson_type_id' => $validated['lesson_type_id'],
-            'hour_id' => $validated['hour_id'],
-            'semester_id' => $validated['semester_id'],
-            'week_type_id' => $validated['week_type_id'],
-            'day_id' => $validated['day_id'],
-            'user_id' => $validated['user_id'],
-            'discipline_id' => $validated['discipline_id'],
-        ]);
+        $createdSchedules = [];
 
-        return response()->json(['message' => 'Schedule created successfully', 'data' => $schedule]);
+        foreach ($validated['group_id'] as $groupId) {
+            $schedule = Schedule::create([
+                'faculty_id' => $validated['faculty_id'],
+                'department_id' => $validated['department_id'],
+                'group_id' => $groupId,
+                'corp_id' => $validated['corp_id'],
+                'room_id' => $validated['room_id'],
+                'lesson_type_id' => $validated['lesson_type_id'],
+                'hour_id' => $validated['hour_id'],
+                'semester_id' => $validated['semester_id'],
+                'week_type_id' => $validated['week_type_id'],
+                'day_id' => $validated['day_id'],
+                'user_id' => $validated['user_id'],
+                'discipline_id' => $validated['discipline_id'],
+            ]);
+
+            $createdSchedules[] = $schedule;
+        }
+
+        return response()->json([
+            'message' => 'Schedules created successfully',
+            'data' => $createdSchedules,
+        ]);
     }
+
 
 
     public function update(Request $request, $id)
@@ -248,5 +258,81 @@ class ScheduleController extends Controller
         $schedule->update(['status' => '0']);
 
         return response()->json(['message' => 'Schedule deleted successfully']);
+    }
+
+
+    public function getDepartmentsByFaculty($faculty_id)
+    {
+        $faculty = Faculty::where('status', '1')->find($faculty_id);
+
+        if (!$faculty) {
+            return response()->json(['message' => 'Faculty not found'], 404);
+        }
+        $departments = $faculty->departments()->where('status', 1)->get();
+        return response()->json($departments);
+    }
+    public function getGroupsByFaculty($faculty_id)
+    {
+        $faculty = Faculty::where('status', '1')->find($faculty_id);
+
+        if (!$faculty) {
+            return response()->json(['message' => 'Faculty not found'], 404);
+        }
+
+        $groups = $faculty->groups()->where('status', '1')->get();
+
+        return response()->json($groups);
+    }
+    public function getDisciplinesByDepartment($department_id)
+    {
+        $department = Department::where('status', '1')->find($department_id);
+
+        if (!$department) {
+            return response()->json(['message' => 'Department not found'], 404);
+        }
+
+        $disciplines = $department->disciplines()->where('status', 1)->get();
+
+        return response()->json($disciplines);
+    }
+    public function getUsersByDepartment($department_id)
+    {
+        $department = Department::where('status', '1')->find($department_id);
+
+        if (!$department) {
+            return response()->json(['message' => 'Department not found'], 404);
+        }
+
+        $users = $department->users()->where('status', 1)->get();
+
+        return response()->json($users);
+    }
+    public function filterSchedules(Request $request)
+    {
+        $facultyId = $request->input('faculty_id');
+
+
+        $schedulesQuery = Schedule::where('status', '1');
+
+        if ($facultyId) {
+            $schedulesQuery->where('faculty_id', $facultyId);
+        }
+
+        $schedules = $schedulesQuery->with([
+            'faculty',
+            'department',
+            'group',
+            'corp',
+            'room',
+            'lessonType',
+            'hour',
+            'semester',
+            'weekType',
+            'day',
+            'user',
+            'discipline',
+        ])->get();
+
+        return response()->json(['schedules' => $schedules]);
     }
 }

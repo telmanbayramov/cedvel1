@@ -16,26 +16,8 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate(['name' => 'required|string']);
-         $existingPermission = Permission::where('name', $validated['name'])->first();
-        if ($existingPermission) {
-            if ($existingPermission->status == 0) {
-                $existingPermission->status = 1;
-                $existingPermission->save();
-    
-                return response()->json([
-                    'message' => 'İcazə deaktiv edilib.',
-                    'permission' => $existingPermission
-                ], 200);
-            }
-                return response()->json([
-                'message' => 'İcazə artıq mövcuddur və aktivdir.'
-            ], 400);
-        }
-    
         $permission = Permission::create([
-            'name' => $validated['name'],
-            'status' => 1
-        ]);
+            'name' => $validated['name']]);
     
         return response()->json([
             'message' => 'İcazə uğurla yaradıldı.',

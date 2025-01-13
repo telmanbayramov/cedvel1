@@ -16,21 +16,29 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
-
-        if ($token = JWTAuth::attempt($credentials, ['exp' => now()->addHour()])) {
+    
+      if ($token = JWTAuth::attempt($credentials, ['exp' => now()->addHour()])) {
             $user = JWTAuth::user();
-            return response()->json([
-                'token' => $token,
-            ]);
+    
+            if ($user->status == 1) {
+                return response()->json([
+                    'status' => 1,
+                    'token' => $token,
+                ]);
+            }
         }
-        return response()->json(['error' => 'Login ve ya sifre yanlisdir'], 401);
+        return response()->json([
+            'status' => 0,
+            'error' => 'Login veya şifre yanlıştır.',
+        ], 401);
     }
-
+    
     public function profile()
     {
         $userdata = auth()->user();
         $roles = $userdata->roles->pluck('name');
         $permissions = $userdata->getAllPermissions()->pluck('name');
+    
         if ($userdata->status != 0) {
             return response()->json([
                 "status" => true,
@@ -41,19 +49,14 @@ class AuthController extends Controller
                     "email" => $userdata->email,
                     "roles" => $roles,
                     "permissions" => $permissions,
-                ]
+                ],
             ]);
-        }
-        if ($userdata->status == 0) {
-            return response()->json([
-                "status" => false,
-                "message" => "İstifadəçinin hesab yoxdur"
-            ], 403);
         } else {
             return response()->json([
                 "status" => false,
-                "message" => "email ve ya parol sehvdir"
-            ], 403);
+                "message" => "İstifadəçinin hesabı yoxdur",
+            ], 403); 
         }
     }
+    
 }

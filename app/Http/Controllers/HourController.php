@@ -25,13 +25,7 @@ class HourController extends Controller
             'name' => 'required|string|max:255'
         ]);
         $existingHour = Hour::where('name', $validated['name'])->first();
-        if ($existingHour) {
-            if ($existingHour->status == 0) {
-                $existingHour->update(['status' => '1']);
-                return response()->json(['message' => 'aktif oldu']);
-            }
-            return response()->json(["message" => 'movcud']);
-        }
+
         $hour = Hour::create([
             'name' => $validated['name']
         ]);
@@ -43,10 +37,7 @@ class HourController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255'
         ]);
-        $existingHour = Hour::where('name', $validated['name'])->where('status', '1')->where('id', '!=', $id)->first();
-        if ($existingHour) {
-            return response()->json(['message' => 'movcuddur']);
-        }
+
         $hour->update([
             'name' => $validated['name'],
         ]);

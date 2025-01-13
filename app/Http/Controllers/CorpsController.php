@@ -22,10 +22,6 @@ class CorpsController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255'
         ]);
-        $existingCorps = Corps::where('name', $validated['name'])->first();
-        if ($existingCorps) {
-            return response()->json(['message' => 'Korpus movcud oldu']);
-        }
         $corps = Corps::create(['name' => $validated['name']]);
         return response()->json(['message' => 'elave edildi', $corps]);
     }
@@ -35,17 +31,13 @@ class CorpsController extends Controller
         $validated = $request->validate([
             "name" => 'required|string|max:255'
         ]);
-        $existingCorps = Corps::where('name', $validated['name'])->where('status', '1')->first();
-        if ($existingCorps) {
-            return response()->json(['message' => 'Eyni adli korpus var']);
-        }
         $corps->update($validated);
         return response()->json(['message' => 'deyisdirildi', $corps]);
     }
     public function destroy($id)
     {
-        $corps = Corps::findOrFail($id);
-        if ($corps->status == 1) {
+        $corps = Corps::where('status', '1')->findOrFail($id);
+        if ($corps) {
             $corps->update(['status' => '0']);
             return response()->json(['message' => 'silindi']);
         }

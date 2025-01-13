@@ -11,11 +11,11 @@ class Faculty extends Model
     protected $fillable = ['name', 'status'];
     public function specialities()
     {
-        return $this->hasMany(Specialty::class, 'faculty_id', 'id'); 
+        return $this->hasMany(Specialty::class, 'faculty_id', 'id')->where('status', 1);
     }
     public function departments()
     {
-        return $this->hasMany(Department::class); // Department modeline birden fazla departman eklenebilir
+        return $this->hasMany(Department::class); 
     }
     public function groups()
     {

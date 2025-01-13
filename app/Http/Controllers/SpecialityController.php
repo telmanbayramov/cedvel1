@@ -9,13 +9,20 @@ class SpecialityController extends Controller
 {
     public function index()
     {
-        $specialty = Specialty::where('status', '1')->get();
-        return response()->json($specialty, 200);
+        $specialties = Specialty::where('status', '1')
+            ->with('faculty')
+            ->get();
+
+        return response()->json($specialties, 200);
     }
+
     public function show($id)
     {
-        $specialty = Specialty::where('status', '1')->findOrFail($id);
-        return response()->json($specialty, 200);
+        $specialties = Specialty::where('status', '1')
+            ->with('faculty')
+            ->findOrFail($id);
+
+        return response()->json($specialties, 200);
     }
     public function create(Request $request)
     {
@@ -23,18 +30,9 @@ class SpecialityController extends Controller
             'name' => 'required|string|max:255',
             'faculty_id' => 'required|exists:faculties,id',
         ]);
-
-        $existingSpeciality = Specialty::where('name', $request->name)
-            ->where('status', 0)
-            ->first();
-        if ($existingSpeciality) {
-            $existingSpeciality->update(['status' => 1]);
-            return response()->json($existingSpeciality, 200);
-        }
         $speciality = Specialty::create([
             'name' => $request->name,
             'faculty_id' => $request->faculty_id,
-            'status' => 1,
         ]);
         return response()->json($speciality, 201);
     }
@@ -60,9 +58,9 @@ class SpecialityController extends Controller
     }
     public function delete($id)
     {
-        $speciality = Specialty::findOrFail($id);
+        $speciality = Specialty::where('status', '1')->findOrFail($id);
 
-        if ($speciality->status === 1) {
+        if ($speciality) {
             $speciality->update(['status' => 0]);
         }
 

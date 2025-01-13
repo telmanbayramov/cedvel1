@@ -54,14 +54,6 @@ class RoomController extends Controller
             return response()->json(['message' => 'Corps not found'], 404);
         }
 
-        $existingRoom = Room::where('name', $validated['name'])->first();
-        if ($existingRoom) {
-            if ($existingRoom->status == 0) {
-                $existingRoom->update(['status' => '1']);
-                return response()->json(['message' => 'aktif oldu'], 209);
-            }
-            return response()->json(['message' => 'mevcut']);
-        }
 
         $room = Room::create([
             'name' => $validated['name'],
@@ -90,14 +82,6 @@ class RoomController extends Controller
         $roomTypeId = RoomType::where('name', $validated['room_type_name'])->first()->id;
         $corpsId = Corps::where('name', $validated['corps_name'])->first()->id;
 
-        $existingRoom = Room::where('name', $validated['name'])
-            ->where('status', '1')
-            ->where('id', '!=', $id)
-            ->first();
-
-        if ($existingRoom) {
-            return response()->json(['message' => 'Mevcut oda ismi bulunmaktadır'], 400);
-        }
 
         $room->update([
             'name' => $validated['name'],

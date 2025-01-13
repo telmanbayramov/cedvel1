@@ -30,10 +30,10 @@ class DisciplinController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'department_name' => 'required|string',
+            'department_id' => 'required|integer|exists:departments,id',
         ]);
 
-        $department = Department::where('name', $validated['department_name'])->first();
+        $department = Department::find($validated['department_id']);
 
         if (!$department) {
             return response()->json(['error' => 'Department not found'], 404);
@@ -42,22 +42,28 @@ class DisciplinController extends Controller
         $disciplin = Discipline::create([
             'name' => $validated['name'],
             'department_id' => $department->id,
-            'status' => 1,
         ]);
 
         return response()->json($disciplin, 201);
     }
 
+
     public function update(Request $request, $id)
     {
-        $disciplin = Discipline::findOrFail($id);
+        $disciplin = Discipline::where('id', $id)->where('status', 1)->first();
+
+        if (!$disciplin) {
+            return response()->json([
+                'message' => 'Bu disciplin ya da statusu 0 olan disciplin bulunamadı.',
+            ], 404);
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'department_name' => 'required|string|exists:departments,name', // department_name üzerinden doğrulama
+            'department_id' => 'required|integer|exists:departments,id',
         ]);
 
-        $department = \App\Models\Department::where('name', $validated['department_name'])->first();
+        $department = Department::find($validated['department_id']);
 
         if (!$department) {
             return response()->json([
@@ -74,24 +80,18 @@ class DisciplinController extends Controller
             'message' => 'Disciplin başarıyla güncellendi.',
             'disciplin' => [
                 'name' => $disciplin->name,
-                'department_name' => $department->name,
+                'department_id' => $department->id,
                 'status' => $disciplin->status,
             ],
         ]);
     }
+
     public function destroy($id)
     {
-        $disciplin = Discipline::findOrFail($id);
-
+        $disciplin = Discipline::where('status', '1')->findOrFail($id);
         $disciplin->update(['status' => '0']);
-
         return response()->json([
-            'message' => 'Disciplin başarıyla silindi.',
-            'disciplin' => [
-                'name' => $disciplin->name,
-                'department_id' => $disciplin->department_id,
-                'status' => $disciplin->status,
-            ],
+            'message' => 'Disciplin başarıyla silindi.'
         ], 200);
     }
 }
