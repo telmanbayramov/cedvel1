@@ -14,8 +14,11 @@ class Specialty extends Model
     {
         return $this->belongsTo(Faculty::class, 'faculty_id', 'id');
     }
-    public function course()
+    public function groups()
     {
-        return $this->hasMany(Course::class); // Specialty'nin bir Course'a ait olduğunu belirtiyoruz
+        // faculty_id üzerinden ilişkiyi kurarak grupları filtreleriz
+        return $this->hasMany(Group::class, 'speciality_id', 'id')
+            ->where('status', '1'); // yalnızca aktif grupları al
     }
+    
 }

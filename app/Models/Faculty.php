@@ -15,14 +15,14 @@ class Faculty extends Model
     }
     public function departments()
     {
-        return $this->hasMany(Department::class); 
+        return $this->hasMany(Department::class)->where('status','1'); 
     }
     public function groups()
     {
-        return $this->hasMany(Group::class);
+        return $this->hasMany(Group::class)->where('status','1');
     }
     public function schedules()
     {
-        return $this->hasMany(Schedule::class, 'faculty_id', 'id');
+        return $this->hasMany(Schedule::class, 'faculty_id', 'id')->where('status','1');
     }
 }

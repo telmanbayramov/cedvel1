@@ -13,6 +13,6 @@ class Course extends Model
     ];
       public function specialty()
     {
-        return $this->belongsTo(Specialty::class);
+        return $this->belongsTo(Specialty::class)->where('status','1');
     }
 }

@@ -24,7 +24,7 @@ class Schedule extends Model
     protected $fillable = [
         'faculty_id', 'department_id', 'group_id', 'corp_id', 'room_id',
         'lesson_type_id', 'hour_id', 'semester_id', 'week_type_id', 'day_id',
-        'user_id', 'discipline_id', 'status'
+        'user_id', 'discipline_id', 'status','confirm_status'
     ];
 
     /**

@@ -33,7 +33,8 @@ class ScheduleController extends Controller
         $dayId = $request->query('day_id');
         $userId = $request->query('user_id');
         $disciplineId = $request->query('discipline_id');
-
+        $confirmStatus = $request->query('confirm_status');  
+    
         $schedulesQuery = Schedule::where('status', '1')->with([
             'faculty',
             'department',
@@ -48,65 +49,65 @@ class ScheduleController extends Controller
             'user',
             'discipline',
         ]);
-
+    
         if ($facultyId) {
             $schedulesQuery->where('faculty_id', $facultyId);
         }
-
+    
         if ($departmentId) {
             $schedulesQuery->where('department_id', $departmentId);
         }
-
+    
         if ($groupId) {
             $schedulesQuery->where('group_id', $groupId);
         }
-
+    
         if ($corpId) {
             $schedulesQuery->where('corp_id', $corpId);
         }
-
+    
         if ($roomId) {
             $schedulesQuery->where('room_id', $roomId);
         }
-
+    
         if ($lessonTypeId) {
             $schedulesQuery->where('lesson_type_id', $lessonTypeId);
         }
-
+    
         if ($hourId) {
             $schedulesQuery->where('hour_id', $hourId);
         }
-
+    
         if ($semesterId) {
             $schedulesQuery->where('semester_id', $semesterId);
         }
-
+    
         if ($weekTypeId) {
             $schedulesQuery->where('week_type_id', $weekTypeId);
         }
-
+    
         if ($dayId) {
             $schedulesQuery->where('day_id', $dayId);
         }
-
+    
         if ($userId) {
             $schedulesQuery->where('user_id', $userId);
         }
-
+    
         if ($disciplineId) {
             $schedulesQuery->where('discipline_id', $disciplineId);
-        }
-
+        } 
         $schedules = $schedulesQuery->get();
-
+    
         $groupedSchedules = $schedules->groupBy('group_id')->map(function ($groupSchedules) {
             $firstSchedule = $groupSchedules->first();
-
+    
             return [
                 'id' => $firstSchedule->id,
                 'group_name' => $firstSchedule->group ? $firstSchedule->group->name : null,
                 'faculty_name' => $firstSchedule->faculty ? $firstSchedule->faculty->name : null,
                 'department_name' => $firstSchedule->department ? $firstSchedule->department->name : null,
+                'confirm_status' => $firstSchedule->confirm_status,  
                 'lessons' => $groupSchedules->map(function ($schedule) {
                     return [
                         'schedule_id' => $schedule->id,
@@ -124,9 +125,10 @@ class ScheduleController extends Controller
                 }),
             ];
         });
-
+    
         return response()->json(['schedules' => $groupedSchedules]);
     }
+    
 
     public function show($id)
     {
@@ -170,6 +172,7 @@ class ScheduleController extends Controller
     }
     public function store(Request $request)
     {
+        // Validation
         $validated = $request->validate([
             'faculty_id' => 'required|integer|exists:faculties,id',
             'department_id' => 'required|integer|exists:departments,id',
@@ -185,10 +188,21 @@ class ScheduleController extends Controller
             'user_id' => 'required|integer|exists:users,id',
             'discipline_id' => 'required|integer|exists:disciplines,id',
         ]);
-
+    
+        $room = Room::findOrFail($validated['room_id']); 
+        $roomType = $room->room_type_id;  
+    
+        if ($roomType === 9) {
+            $confirmStatus = 0;  // Eğer oda tipi "umumi" (public) ise, confirm_status 0 olsun.
+        } else {
+            $confirmStatus = 1;  // Diğer oda türleri için confirm_status 1 olsun.
+        }
+    
         $createdSchedules = [];
-
+    
+        // Öğrenci grupları için her birini yaratıyoruz
         foreach ($validated['group_id'] as $groupId) {
+            // Schedule verisini oluşturuyoruz.
             $schedule = Schedule::create([
                 'faculty_id' => $validated['faculty_id'],
                 'department_id' => $validated['department_id'],
@@ -202,16 +216,22 @@ class ScheduleController extends Controller
                 'day_id' => $validated['day_id'],
                 'user_id' => $validated['user_id'],
                 'discipline_id' => $validated['discipline_id'],
+                'status' => 1,  // Varsayılan olarak status 1 (aktif) olarak ayarlanıyor.
+                'confirm_status' => $confirmStatus,  // Oda türüne göre onay durumu belirleniyor.
             ]);
-
+    
+            // Oluşturulan zamanı listeye ekliyoruz.
             $createdSchedules[] = $schedule;
         }
-
+    
+        // Sonuçları döndürüyoruz.
         return response()->json([
-            'message' => 'Schedules created successfully',
+            'message' => 'Schedules created successfully and pending approval.',
             'data' => $createdSchedules,
-        ]);
+        ], 201);
     }
+    
+
 
 
 
@@ -335,4 +355,5 @@ class ScheduleController extends Controller
 
         return response()->json(['schedules' => $schedules]);
     }
+  
 }

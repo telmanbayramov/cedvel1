@@ -18,19 +18,21 @@ class SpecialityController extends Controller
 
     public function show($id)
     {
-        $specialties = Specialty::where('status', '1')
-            ->with('faculty')
+        // İlgili specialty ve ilişkili grupları getirme
+        $specialty = Specialty::where('status', '1')
+            ->with('faculty')->with('groups') // ilişkili grupları da dahil et
             ->findOrFail($id);
-
-        return response()->json($specialties, 200);
+    
+        return response()->json($specialty);
     }
+    
     public function create(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'faculty_id' => 'required|exists:faculties,id',
         ]);
-        $speciality = Specialty::create([
+        $speciality = Specialty::create([   
             'name' => $request->name,
             'faculty_id' => $request->faculty_id,
         ]);

@@ -22,9 +22,6 @@ class DepartmentController extends Controller
             'name' => 'required|string|max:255',
             'faculty_id' => 'required|exists:faculties,id',
         ]);
-
-
-
         $department = Department::create([
             'name' => $validated['name'],
             'faculty_id' => $validated['faculty_id'],
@@ -35,14 +32,12 @@ class DepartmentController extends Controller
 
     public function show($id)
     {
-        $department = Department::with('faculty:id,name')->where('status', '1')->findOrFail($id);
+        $department = Department::with('disciplines:id,name')->with('faculties')->where('status', '1')->findOrFail($id);
         return response()->json(
             $department,
             200
         );
     }
-
-
     public function update(Request $request, $id)
     {
         $department = Department::findOrFail($id);

@@ -19,11 +19,9 @@ class CourseController extends Controller
             'name' => 'required|string|max:255',
 
         ]);
-
         $courses[] = Course::create([
             'name' => $validated['name'],
         ]);
-
         return response()->json(['message' => 'Kurs başarıyla eklendi!', 'courses' => $courses], 201);
     }
     public function update(Request $request, $id)

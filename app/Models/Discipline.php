@@ -14,7 +14,7 @@ class Discipline extends Model
     // Disciplin Model
     public function department()
     {
-        return $this->belongsTo(Department::class); // Burada ilişkilerin doğru kurulduğundan emin olun
+        return $this->belongsTo(Department::class)->where('status','1'); // Burada ilişkilerin doğru kurulduğundan emin olun
     }
     
 }

@@ -81,7 +81,6 @@ class DisciplinController extends Controller
             'disciplin' => [
                 'name' => $disciplin->name,
                 'department_id' => $department->id,
-                'status' => $disciplin->status,
             ],
         ]);
     }
